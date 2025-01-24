@@ -1,0 +1,8 @@
+---
+#From https://github.com/cloudfoundry-samples/cf-sample-app-spring/blob/master/manifest.yml
+applications:
+- name: cf-demo
+  memory: 768M
+  instances: 1
+  # random-route: true
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
