@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"code.cloudfoundry.org/cli/cf/manifest"
+	"github.com/gciavarrini/cf-application-discovery/internal"
 	"gopkg.in/yaml.v3"
 )
 
@@ -26,7 +26,7 @@ func main() {
 	}
 
 	// Unmarshal the YAML data into the Manifest struct
-	var cfApplications manifest.Applications
+	var cfApplications internal.AppManifest
 	err = yaml.Unmarshal(data, &cfApplications)
 	if err != nil {
 		fmt.Printf("Error unmarshalling YAML: %v\n", err)
