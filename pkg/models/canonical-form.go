@@ -27,7 +27,8 @@ type Application struct {
 	StartupTimeout *uint `json:"startupTimeout,omitempty"`
 	// BuildPacks capture the buildpacks defined in the CF application manifest.
 	BuildPacks []string `json:"buildPacks,omitempty"`
-	Docker     Docker   `json:"docker,omitempty"`
+	// Docker captures the Docker specification in the CF application manifest.
+	Docker *Docker `json:"docker,omitempty"`
 }
 
 type Docker struct {
