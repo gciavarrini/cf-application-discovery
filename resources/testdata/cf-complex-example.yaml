@@ -1,0 +1,55 @@
+---
+applications:
+  - name: my-web-app
+    path: ./my-web-app
+    memory: 1G
+    instances: 3
+    buildpacks:
+      - java_buildpack
+    env:
+      SPRING_PROFILES_ACTIVE: production
+      DATABASE_URL: postgres://user:password@db.example.com:5432/mydb
+    services:
+      - my-database-service
+      - my-cache-service
+    routes:
+      - route: my-web-app.example.com
+
+  - name: my-worker-app
+    path: ./my-worker-app
+    memory: 512M
+    instances: 2
+    buildpacks:
+      - go_buildpack
+    env:
+      WORKER_ENV: production
+      QUEUE_URL: redis://cache.example.com:6379/0
+    services:
+      - my-queue-service
+
+  - name: my-background-job-app
+    path: ./my-background-job-app
+    memory: 256M
+    instances: 1
+    buildpacks:
+      - ruby_buildpack
+    env:
+      JOB_ENV: production
+      API_KEY: your_api_key_here
+    services:
+      - my-api-service
+
+  - name: my-static-site
+    path: ./my-static-site
+    memory: 256M
+    instances: 1
+    no-route: true # No route for static site; can be served through a CDN or other means
+
+  - name: my-frontend-app
+    path: ./my-frontend-app
+    memory: 512M
+    instances: 2
+    buildpacks:
+      - staticfile_buildpack # For serving static files like HTML/CSS/JS
+    routes:
+      - route: frontend.example.com
