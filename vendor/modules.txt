@@ -1,10 +1,41 @@
 # github.com/cloudfoundry/go-cfclient/v3 v3.0.0-alpha.9
 ## explicit; go 1.19
+github.com/cloudfoundry/go-cfclient/v3/client
+github.com/cloudfoundry/go-cfclient/v3/config
+github.com/cloudfoundry/go-cfclient/v3/internal/check
+github.com/cloudfoundry/go-cfclient/v3/internal/http
+github.com/cloudfoundry/go-cfclient/v3/internal/ios
+github.com/cloudfoundry/go-cfclient/v3/internal/jwt
+github.com/cloudfoundry/go-cfclient/v3/internal/path
+github.com/cloudfoundry/go-cfclient/v3/operation
 github.com/cloudfoundry/go-cfclient/v3/resource
-# github.com/google/go-cmp v0.6.0
-## explicit; go 1.13
+## explicit
+github.com/codegangsta/inject
+# github.com/davecgh/go-spew v1.1.1
+## explicit
+github.com/davecgh/go-spew/spew
+# github.com/go-martini/martini v0.0.0-20170121215854-22fa46961aab
+## explicit
+github.com/go-martini/martini
+# github.com/martini-contrib/render v0.0.0-20150707142108-ec18f8345a11
+## explicit
+github.com/martini-contrib/render
+# github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
+## explicit; go 1.12
+github.com/oxtoacart/bpool
+# github.com/pmezard/go-difflib v1.0.0
+## explicit
+github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.10.0
 ## explicit; go 1.17
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/assert/yaml
+github.com/stretchr/testify/require
+# golang.org/x/oauth2 v0.21.0
+## explicit; go 1.18
+golang.org/x/oauth2
+golang.org/x/oauth2/clientcredentials
+golang.org/x/oauth2/internal
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
