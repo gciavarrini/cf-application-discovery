@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := build
 
-.PHONY:fmt vet build
+.PHONY:fmt vet build lint
 
 fmt:
 	go fmt ./...
@@ -11,3 +11,6 @@ vet: fmt
 build: vet
 	go build
 
+lint:
+	staticcheck ./...
+	go vet ./...
