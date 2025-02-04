@@ -8,3 +8,4 @@ require (
 )
 
 require github.com/stretchr/testify v1.10.0 // indirect
+	github.com/google/go-cmp v0.6.0 // indirect

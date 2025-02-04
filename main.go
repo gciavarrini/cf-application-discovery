@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
-	"github.com/gciavarrini/cf-application-discovery/internal"
+	"cf-application-discovery/pkg/discover"
+
+	"github.com/cloudfoundry/go-cfclient/v3/operation"
 	"gopkg.in/yaml.v3"
 )
 
@@ -26,7 +29,7 @@ func main() {
 	}
 
 	// Unmarshal the YAML data into the Manifest struct
-	var cfApplications internal.AppManifest
+	var cfApplications operation.Manifest
 	err = yaml.Unmarshal(data, &cfApplications)
 	if err != nil {
 		fmt.Printf("Error unmarshalling YAML: %v\n", err)
@@ -35,7 +38,12 @@ func main() {
 
 	if len(cfApplications.Applications) > 0 {
 		for i, v := range cfApplications.Applications {
-			fmt.Printf("%d --> %v", i, v)
+			d, err := discover.Discover(*v, cfApplications.Version, "")
+			if err != nil {
+				log.Fatal(err)
+			}
+			m, err := yaml.Marshal(d)
+			fmt.Printf("#%d\n%s\n", i, m)
 		}
 	} else {
 		fmt.Println("No applications found.")

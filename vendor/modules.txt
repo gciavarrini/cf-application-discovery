@@ -1,6 +1,8 @@
 # github.com/cloudfoundry/go-cfclient/v3 v3.0.0-alpha.9
 ## explicit; go 1.19
 github.com/cloudfoundry/go-cfclient/v3/resource
+# github.com/google/go-cmp v0.6.0
+## explicit; go 1.13
 # github.com/stretchr/testify v1.10.0
 ## explicit; go 1.17
 # gopkg.in/yaml.v3 v3.0.1
