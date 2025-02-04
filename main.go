@@ -7,7 +7,6 @@ import (
 
 	"cf-application-discovery/pkg/discover"
 
-	"github.com/cloudfoundry/go-cfclient/v3/operation"
 	"gopkg.in/yaml.v3"
 )
 
@@ -29,7 +28,7 @@ func main() {
 	}
 
 	// Unmarshal the YAML data into the Manifest struct
-	var cfApplications operation.Manifest
+	var cfApplications discover.Manifest
 	err = yaml.Unmarshal(data, &cfApplications)
 	if err != nil {
 		fmt.Printf("Error unmarshalling YAML: %v\n", err)

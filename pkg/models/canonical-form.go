@@ -8,7 +8,7 @@ type Application struct {
 	// Env captures the `env` field values in the CF application manifest.
 	Env map[string]string `yaml:"env,omitempty"`
 	// Routes represent the routes that are made available by the application.
-	Routes Routes `yaml:"route,omitempty"`
+	Route RouteSpec `yaml:"route,inline,omitempty"`
 	// Services captures the `services` field values in the CF application manifest.
 	Services Services `yaml:"service,omitempty"`
 	// Processes captures the `processes` field values in the CF application manifest.
@@ -34,10 +34,9 @@ type Application struct {
 	Instances int `yaml:"instances" validate:"required,min=1"`
 }
 
-type Services []Service
-type Processes []Process
-type Sidecars []Sidecar
-type Routes []Route
+type Services []ServiceSpec
+type Processes []ProcessSpec
+type Sidecars []SidecarSpec
 
 type Docker struct {
 	// Image represents the pullspect where the container image is located.
@@ -46,7 +45,7 @@ type Docker struct {
 	Username string `yaml:"username,omitempty"`
 }
 
-type Sidecar struct {
+type SidecarSpec struct {
 	// Name represents the name of the Sidecar
 	Name string `yaml:"name" validate:"required"`
 	// ProcessTypes captures the different process types defined for the sidecar.
@@ -60,7 +59,7 @@ type Sidecar struct {
 	Memory string `yaml:"memory,omitempty"`
 }
 
-type Service struct {
+type ServiceSpec struct {
 	// Name represents the name of the Cloud Foundry service required by the
 	// application. This field represents the runtime name of the service, captured
 	// from the 3 different cases where the service name can be listed.
@@ -88,7 +87,7 @@ type Metadata struct {
 	Version string `yaml:"version"`
 }
 
-type Process struct {
+type ProcessSpec struct {
 	// Type captures the `type` field in the Process specification.
 	// Accepted values are `web` or `worker`
 	Type ProcessType `yaml:"type" validate:"required,oneof=web worker"`
@@ -99,16 +98,16 @@ type Process struct {
 	// Memory represents the amount of memory requested by the process.
 	Memory string `yaml:"memory" validate:"required"`
 	// HealthCheck captures the health check information
-	HealthCheck Probe `yaml:"healthCheck"`
+	HealthCheck ProbeSpec `yaml:"healthCheck"`
 	// ReadinessCheck captures the readiness check information.
-	ReadinessCheck Probe `yaml:"readinessCheck"`
+	ReadinessCheck ProbeSpec `yaml:"readinessCheck"`
 	// Instances represents the number of instances for this process to run.
 	Instances int `yaml:"instances" validate:"required,min=1"`
 	// LogRateLimit represents the maximum amount of logs to be captured per second. Defaults to `16K`
 	LogRateLimit string `yaml:"logRateLimit" validate:"required"`
 	// Lifecycle captures the value fo the lifecycle field in the CF application manifest.
 	// Valid values are `buildpack`, `cnb`, and `docker`. Defaults to `buildpack`
-	Lifecycle LifecycleType `yaml:"lifecycle" validate:"required,oneof=buildpack cnb docker"`
+	Lifecycle LifecycleType `yaml:"lifecycle,omitempty" validate:"required,oneof=buildpack cnb docker"`
 }
 
 type LifecycleType string
@@ -128,7 +127,7 @@ const (
 	Worker ProcessType = "worker"
 )
 
-type Probe struct {
+type ProbeSpec struct {
 	// Endpoint represents the URL location where to perform the probe check.
 	Endpoint string `yaml:"endpoint" validate:"required"`
 	// Timeout represents the number of seconds in which the probe check can be considered as timedout.
@@ -148,14 +147,28 @@ const (
 	PortProbeType    ProbeType = "port"
 )
 
+type Routes []Route
+
+type RouteSpec struct {
+	NoRoute     bool   `yaml:"noRoute,omitempty"`
+	RandomRoute bool   `yaml:"randomRoute,omitempty"`
+	Routes      Routes `yaml:"routes,omitempty"`
+}
+
 type Route struct {
 	// Route captures the domain name, port and path of the route.
 	Route string `yaml:"route" validate:"required"`
 	// Protocol captures the protocol type: http, http2 or tcp. Note that the CF `protocol` field is only available
 	// for CF deployments that use HTTP/2 routing.
 	Protocol RouteProtocol `yaml:"protocol" validate:"required,oneof=http http2 tcp"`
+	// Options captures the options for the Route. Only load balancing is supported at the moment.
+	Options RouteOptions `yaml:"options,omitempty"`
 }
 
+type RouteOptions struct {
+	// LoadBalancing captures the settings for load balancing. Only `round-robin` or `least-connections` are supported
+	LoadBalancing string `yaml:"loadBalancing,omitempty" validate:"oneof=round-robin least-connections"`
+}
 type RouteProtocol string
 
 const (

@@ -3,11 +3,9 @@ package discover
 import (
 	"cf-application-discovery/pkg/models"
 	"encoding/json"
-
-	"github.com/cloudfoundry/go-cfclient/v3/operation"
 )
 
-func Discover(cfApp operation.AppManifest, version, space string) (models.Application, error) {
+func Discover(cfApp AppManifest, version, space string) (models.Application, error) {
 	appVersion := "1"
 	if version != "" {
 		appVersion = version
@@ -22,7 +20,7 @@ func Discover(cfApp operation.AppManifest, version, space string) (models.Applic
 		instances = int(*cfApp.Instances)
 	}
 	services := parseServices(cfApp.Services)
-	routes := parseRoutes(cfApp.Name, cfApp.Routes, cfApp.NoRoute, cfApp.DefaultRoute)
+	routeSpec := parseRoute(cfApp.Routes, cfApp.RandomRoute, cfApp.NoRoute)
 	docker := parseDocker(cfApp.Docker)
 	sidecars := parseSidecars(cfApp.Sidecars)
 	processes, err := parseProcesses(cfApp)
@@ -49,14 +47,14 @@ func Discover(cfApp operation.AppManifest, version, space string) (models.Applic
 		Env:        cfApp.Env,
 		Stack:      cfApp.Stack,
 		Services:   services,
-		Routes:     routes,
+		Route:      routeSpec,
 		Docker:     docker,
 		Sidecars:   sidecars,
 		Processes:  processes,
 	}, nil
 }
 
-func parseHealthCheck(cfType operation.AppHealthCheckType, cfEndpoint string, cfInterval, cfTimeout uint) models.Probe {
+func parseHealthCheck(cfType AppHealthCheckType, cfEndpoint string, cfInterval, cfTimeout uint) models.ProbeSpec {
 	t := models.PortProbeType
 	if len(cfType) > 0 {
 		t = models.ProbeType(cfType)
@@ -73,7 +71,7 @@ func parseHealthCheck(cfType operation.AppHealthCheckType, cfEndpoint string, cf
 	if cfInterval > 0 {
 		interval = int(cfInterval)
 	}
-	return models.Probe{
+	return models.ProbeSpec{
 		Type:     t,
 		Endpoint: endpoint,
 		Timeout:  timeout,
@@ -81,7 +79,7 @@ func parseHealthCheck(cfType operation.AppHealthCheckType, cfEndpoint string, cf
 	}
 }
 
-func parseReadinessHealthCheck(cfType operation.AppHealthCheckType, cfEndpoint string, cfInterval, cfTimeout uint) models.Probe {
+func parseReadinessHealthCheck(cfType AppHealthCheckType, cfEndpoint string, cfInterval, cfTimeout uint) models.ProbeSpec {
 	t := models.ProcessProbeType
 	if len(cfType) > 0 {
 		t = models.ProbeType(cfType)
@@ -98,7 +96,7 @@ func parseReadinessHealthCheck(cfType operation.AppHealthCheckType, cfEndpoint s
 	if cfInterval > 0 {
 		interval = int(cfInterval)
 	}
-	return models.Probe{
+	return models.ProbeSpec{
 		Type:     t,
 		Endpoint: endpoint,
 		Timeout:  timeout,
@@ -106,7 +104,7 @@ func parseReadinessHealthCheck(cfType operation.AppHealthCheckType, cfEndpoint s
 	}
 }
 
-func parseProcesses(cfApp operation.AppManifest) (models.Processes, error) {
+func parseProcesses(cfApp AppManifest) (models.Processes, error) {
 	processes := models.Processes{}
 	if cfApp.Processes == nil {
 		return processes, nil
@@ -127,8 +125,8 @@ func parseProcesses(cfApp operation.AppManifest) (models.Processes, error) {
 	return processes, nil
 }
 
-func parseInlinedProcessSpec(cfApp operation.AppManifest) (operation.AppManifestProcess, error) {
-	cfProc := operation.AppManifestProcess{}
+func parseInlinedProcessSpec(cfApp AppManifest) (AppManifestProcess, error) {
+	cfProc := AppManifestProcess{}
 	b, err := json.Marshal(cfApp)
 	if err != nil {
 		return cfProc, err
@@ -137,9 +135,9 @@ func parseInlinedProcessSpec(cfApp operation.AppManifest) (operation.AppManifest
 	return cfProc, err
 }
 
-func parseProcess(cfProcess operation.AppManifestProcess) models.Process {
+func parseProcess(cfProcess AppManifestProcess) models.ProcessSpec {
 	memory := "1G"
-	if len(cfProcess.Memory) == 0 {
+	if len(cfProcess.Memory) != 0 {
 		memory = cfProcess.Memory
 	}
 	instances := 1
@@ -150,16 +148,16 @@ func parseProcess(cfProcess operation.AppManifestProcess) models.Process {
 	if len(cfProcess.LogRateLimitPerSecond) > 0 {
 		logRateLimit = cfProcess.LogRateLimitPerSecond
 	}
-	p := models.Process{
+	p := models.ProcessSpec{
 		Type:           models.ProcessType(cfProcess.Type),
 		Command:        cfProcess.Command,
-		DiskQuota:      cfProcess.Command,
+		DiskQuota:      cfProcess.DiskQuota,
 		Memory:         memory,
 		HealthCheck:    parseHealthCheck(cfProcess.HealthCheckType, cfProcess.HealthCheckHTTPEndpoint, cfProcess.HealthCheckInterval, cfProcess.HealthCheckInvocationTimeout),
 		ReadinessCheck: parseReadinessHealthCheck(cfProcess.HealthCheckType, cfProcess.HealthCheckHTTPEndpoint, cfProcess.HealthCheckInterval, cfProcess.HealthCheckInvocationTimeout),
 		Instances:      instances,
 		LogRateLimit:   logRateLimit,
-		//Lifecycle:      models.LifecycleType(cfProcess.Lifecycle),
+		Lifecycle:      models.LifecycleType(cfProcess.Lifecycle),
 	}
 	return p
 }
@@ -172,14 +170,14 @@ func parseProcessTypes(cfProcessTypes []string) []models.ProcessType {
 	return types
 
 }
-func parseSidecars(cfSidecars *operation.AppManifestSideCars) models.Sidecars {
+func parseSidecars(cfSidecars *AppManifestSideCars) models.Sidecars {
 	sidecars := models.Sidecars{}
 	if cfSidecars == nil {
 		return sidecars
 	}
 	for _, cfSidecar := range *cfSidecars {
 		pt := parseProcessTypes(cfSidecar.ProcessTypes)
-		s := models.Sidecar{
+		s := models.SidecarSpec{
 			Name:         cfSidecar.Name,
 			Command:      cfSidecar.Command,
 			ProcessTypes: pt,
@@ -190,7 +188,7 @@ func parseSidecars(cfSidecars *operation.AppManifestSideCars) models.Sidecars {
 	return sidecars
 }
 
-func parseDocker(cfDocker *operation.AppManifestDocker) models.Docker {
+func parseDocker(cfDocker *AppManifestDocker) models.Docker {
 	if cfDocker == nil {
 		return models.Docker{}
 	}
@@ -199,13 +197,13 @@ func parseDocker(cfDocker *operation.AppManifestDocker) models.Docker {
 		Username: cfDocker.Username,
 	}
 }
-func parseServices(cfServices *operation.AppManifestServices) models.Services {
+func parseServices(cfServices *AppManifestServices) models.Services {
 	services := models.Services{}
 	if cfServices == nil {
 		return services
 	}
 	for _, svc := range *cfServices {
-		s := models.Service{
+		s := models.ServiceSpec{
 			Name:        svc.Name,
 			Parameters:  svc.Parameters,
 			BindingName: svc.BindingName,
@@ -215,23 +213,30 @@ func parseServices(cfServices *operation.AppManifestServices) models.Services {
 	return services
 }
 
-func parseRoutes(cfAppName string, cfRoutes *operation.AppManifestRoutes, noRoute, defaultRoute bool) models.Routes {
-	routes := models.Routes{}
-	if noRoute || cfRoutes == nil || (!noRoute && cfRoutes != nil && len(*cfRoutes) == 0) {
-		return routes
-	}
-	if defaultRoute {
-		r := models.Route{
-			Route: cfAppName,
+func parseRoute(cfRoutes *AppManifestRoutes, randomRoute, noRoute bool) models.RouteSpec {
+	if noRoute {
+		return models.RouteSpec{
+			NoRoute: noRoute,
 		}
-		return append(routes, r)
+	}
+	routeSpec := models.RouteSpec{
+		RandomRoute: randomRoute,
+	}
+
+	if cfRoutes == nil {
+		return routeSpec
 	}
 	for _, cfRoute := range *cfRoutes {
+		options := models.RouteOptions{}
+		if cfRoute.Options != nil {
+			options.LoadBalancing = cfRoute.Options.LoadBalancing
+		}
 		r := models.Route{
 			Route:    cfRoute.Route,
 			Protocol: models.RouteProtocol(cfRoute.Protocol),
+			Options:  options,
 		}
-		routes = append(routes, r)
+		routeSpec.Routes = append(routeSpec.Routes, r)
 	}
-	return routes
+	return routeSpec
 }
