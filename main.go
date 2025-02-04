@@ -42,6 +42,10 @@ func main() {
 				log.Fatal(err)
 			}
 			m, err := yaml.Marshal(d)
+			if err != nil {
+				fmt.Printf("Error marshalling YAML file: %v\n", err)
+				return
+			}
 			fmt.Printf("#%d\n%s\n", i, m)
 		}
 	} else {
