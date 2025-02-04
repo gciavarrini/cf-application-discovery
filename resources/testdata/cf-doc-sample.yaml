@@ -58,7 +58,6 @@ applications:
     process_types: [ 'web', 'worker' ]
     command: bundle exec run-authenticator
     memory: 800M
-
   - name: upcaser
     process_types: [ 'worker' ]
     command: ./tr-server

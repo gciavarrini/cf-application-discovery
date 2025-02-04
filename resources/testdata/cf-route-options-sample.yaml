@@ -1,0 +1,8 @@
+#From https://docs.cloudfoundry.org/devguide/custom-per-route-options.html
+---
+applications:
+- name: MY-APP
+  routes:
+    - route: MY-APP.EXAMPLE.COM
+       options:
+         loadbalancing: least-connections
