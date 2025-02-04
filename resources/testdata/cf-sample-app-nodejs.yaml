@@ -1,0 +1,9 @@
+# From https://github.com/cloudfoundry-samples/cf-sample-app-nodejs/blob/master/manifest.yml
+---
+applications:
+- name: cf-nodejs
+  memory: 512M
+  instances: 1
+  random-route: true
+  buildpacks:
+    - https://github.com/cloudfoundry/nodejs-buildpack

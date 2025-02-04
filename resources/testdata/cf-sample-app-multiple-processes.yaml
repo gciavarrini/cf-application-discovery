@@ -1,0 +1,12 @@
+# From https://docs.cloudfoundry.org/devguide/multiple-processes.html#manifest
+version: 1
+applications:
+- name: example-app
+  processes:
+  - type: web
+    command: bundle exec rackup config.ru -p $PORT
+    instances: 3
+  - type: worker
+    command: bundle exec rake worker:start
+    health-check-type: process
+    instances: 2
