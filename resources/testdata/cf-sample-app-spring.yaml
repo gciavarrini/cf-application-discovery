@@ -1,8 +1,37 @@
 ---
-#From https://github.com/cloudfoundry-samples/cf-sample-app-spring/blob/master/manifest.yml
+# From https://github.com/cloudfoundry-samples/cf-sample-app-spring/blob/master/manifest.yml
 applications:
 - name: cf-demo
   memory: 768M
   instances: 1
-  # random-route: true
-  buildpack: https://github.com/cloudfoundry/java-buildpack.git"
+  random-route: true
+  buildpacks:
+  - https://github.com/cloudfoundry/java-buildpack.git
+# From https://docs.cloudfoundry.org/buildpacks/cnb/#cnb-example-credentials
+- name: cf-nodejs
+  lifecycle: cnb
+  buildpacks:
+  - docker://my-registry-a.corp/nodejs
+  - docker://my-registry-b.corp/dynatrace
+  memory: 512M
+  instances: 1
+  random-route: true
+# From https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#processes
+- name: cf-java-process
+  processes:
+  - type: web
+    command: start-web.sh
+    disk_quota: 512M
+    health-check-http-endpoint: /healthcheck
+    health-check-type: http
+    health-check-invocation-timeout: 10
+    instances: 3
+    memory: 500M
+    timeout: 10
+  - type: worker
+    command: start-worker.sh
+    disk_quota: 1G
+    health-check-type: process
+    instances: 2
+    memory: 256M
+    timeout: 15
