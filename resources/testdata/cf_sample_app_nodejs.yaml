@@ -1,4 +1,4 @@
-# From https://github.com/cloudfoundry-samples/cf-sample-app-nodejs/blob/master/manifest.yml
+# From https://github.com/cloudfoundry-samples/cf-sample-app-nodejs/pull/10/files
 ---
 applications:
 - name: cf-nodejs
@@ -7,3 +7,20 @@ applications:
   random-route: true
   buildpacks:
     - https://github.com/cloudfoundry/nodejs-buildpack
+# From https://docs.cloudfoundry.org/buildpacks/cnb/index.html#cnb-example
+- name: cf-nodejs-with-docker
+  lifecycle: cnb
+  buildpacks:
+  - docker://gcr.io/paketo-buildpacks/nodejs
+  memory: 512M
+  instances: 1
+  random-route: true
+# From https://docs.cloudfoundry.org/buildpacks/cnb/index.html#cnb-example-credentials
+- name: cf-nodejs-with-multiple-buildpacks
+  lifecycle: cnb
+  buildpacks:
+  - docker://my-registry-a.corp/nodejs
+  - docker://my-registry-b.corp/dynatrace
+  memory: 512M
+  instances: 1
+  random-route: true
