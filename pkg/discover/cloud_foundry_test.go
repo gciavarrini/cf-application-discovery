@@ -23,7 +23,7 @@ var _ = Describe("Health Checks tests", func() {
 					Timeout:  1,
 					Interval: 30,
 				}),
-			Entry("with custom type and endpoint",
+			Entry("with process type and endpoint",
 				AppManifestProcess{
 					HealthCheckType:              "process",
 					HealthCheckHTTPEndpoint:      "/health",
