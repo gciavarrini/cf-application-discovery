@@ -63,7 +63,7 @@ type AppManifestProcess struct {
 	Memory                           string             `yaml:"memory,omitempty"`
 	Timeout                          uint               `yaml:"timeout,omitempty"`
 	HealthCheckInterval              uint               `yaml:"health-check-interval,omitempty"`
-	ReadinessHealthCheckType         string             `yaml:"readiness-health-check-type,omitempty"`
+	ReadinessHealthCheckType         AppHealthCheckType `yaml:"readiness-health-check-type,omitempty"`
 	ReadinessHealthCheckHttpEndpoint string             `yaml:"readiness-health-check-http-endpoint,omitempty"`
 	ReadinessHealthInvocationTimeout uint               `yaml:"readiness-health-invocation-timeout,omitempty"`
 	ReadinessHealthCheckInterval     uint               `yaml:"readiness-health-check-interval,omitempty"`
