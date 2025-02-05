@@ -1,9 +1,5 @@
 package discover
 
-import (
-	"github.com/cloudfoundry/go-cfclient/v3/resource"
-)
-
 type AppHealthCheckType string
 
 const (
@@ -32,6 +28,11 @@ type Manifest struct {
 	Applications []*AppManifest `yaml:"applications"`
 }
 
+// Metadata allows you to tag API resources with information that does not directly affect its functionality.
+type Metadata struct {
+	Labels      map[string]*string `json:"labels"`
+	Annotations map[string]*string `json:"annotations"`
+}
 type AppManifest struct {
 	Name               string                `yaml:"name"`
 	Path               string                `yaml:"path,omitempty"`
@@ -45,7 +46,7 @@ type AppManifest struct {
 	Sidecars           *AppManifestSideCars  `yaml:"sidecars,omitempty"`
 	Processes          *AppManifestProcesses `yaml:"processes,omitempty"`
 	Stack              string                `yaml:"stack,omitempty"`
-	Metadata           *resource.Metadata    `yaml:"metadata,omitempty"`
+	Metadata           *Metadata             `yaml:"metadata,omitempty"`
 	AppManifestProcess `yaml:",inline"`
 }
 
