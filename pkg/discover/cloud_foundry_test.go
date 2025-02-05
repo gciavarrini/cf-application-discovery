@@ -211,6 +211,63 @@ var _ = Describe("Parse Process", func() {
 	})
 })
 
+var _ = Describe("Parse Sidecars", func() {
+
+	When("parsing sidecars", func() {
+		DescribeTable("validate the correctness of the parsing logic", func(cfSidecars *AppManifestSideCars, expected models.Sidecars) {
+			result := parseSidecars(cfSidecars)
+			Expect(result).To(Equal(expected))
+		},
+			Entry("default values with nil input",
+				nil,
+				models.Sidecars{},
+			),
+			Entry("default values with empty input",
+				&AppManifestSideCars{},
+				models.Sidecars{},
+			),
+			Entry("one sidecar with only name",
+				&AppManifestSideCars{
+					AppManifestSideCar{
+						Name: "test-name",
+					},
+				},
+				models.Sidecars{
+					{
+						Name:         "test-name",
+						ProcessTypes: []models.ProcessType{},
+					},
+				},
+			),
+			Entry("one sidecar with only command",
+				&AppManifestSideCars{
+					AppManifestSideCar{
+						Command: "test-command",
+					},
+				},
+				models.Sidecars{
+					{
+						Command:      "test-command",
+						ProcessTypes: []models.ProcessType{},
+					},
+				},
+			),
+			Entry("one sidecar with only process types",
+				&AppManifestSideCars{
+					AppManifestSideCar{
+						ProcessTypes: []string{"web", "worker"},
+					},
+				},
+				models.Sidecars{
+					{
+						ProcessTypes: []models.ProcessType{models.Web, models.Worker},
+					},
+				},
+			),
+		)
+	})
+})
+
 // Helper function to create a pointer to a uint value.
 func uintPtr(i uint) *uint {
 	return &i
