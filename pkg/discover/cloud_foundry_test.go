@@ -178,6 +178,37 @@ var _ = Describe("Parse Process", func() {
 			),
 		)
 	})
+	When("parsing a process type", func() {
+		DescribeTable("validate the correctness of the parsing logic", func(cfProcessTypes []string, expected []models.ProcessType) {
+			result := parseProcessTypes(cfProcessTypes)
+			Expect(result).To(Equal(expected))
+		},
+			Entry("default values with nil input",
+				nil,
+				[]models.ProcessType{},
+			),
+			Entry("default values with empty input",
+				[]string{},
+				[]models.ProcessType{},
+			),
+			Entry("with web type",
+				[]string{"web"},
+				[]models.ProcessType{models.Web},
+			),
+			Entry("with worker type",
+				[]string{"worker"},
+				[]models.ProcessType{models.Worker},
+			),
+			Entry("with unknown type",
+				[]string{"unknown"},
+				[]models.ProcessType{"unknown"},
+			),
+			Entry("with multiple type",
+				[]string{"web", "worker", "unknown"},
+				[]models.ProcessType{models.Web, models.Worker, "unknown"},
+			),
+		)
+	})
 })
 
 // Helper function to create a pointer to a uint value.
