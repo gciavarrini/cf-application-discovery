@@ -1,4 +1,4 @@
-module cf-application-discovery
+module github.com/gciavarrini/cf-application-discovery
 
 go 1.23.3
 
