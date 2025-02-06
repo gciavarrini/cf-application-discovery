@@ -167,12 +167,20 @@ type Route struct {
 
 type RouteOptions struct {
 	// LoadBalancing captures the settings for load balancing. Only `round-robin` or `least-connections` are supported
-	LoadBalancing string `yaml:"loadBalancing,omitempty" validate:"oneof=round-robin least-connections"`
+	LoadBalancing LoadBalancingType `yaml:"loadBalancing,omitempty" validate:"oneof=round-robin least-connections"`
 }
+
+type LoadBalancingType string
+
+const (
+	RoundRobinLoadBalancingType      LoadBalancingType = "round-robin"
+	LeastConnectionLoadBalancingType LoadBalancingType = "least-connection"
+)
+
 type RouteProtocol string
 
 const (
-	HTTPRouteProtocol  RouteProtocol = "http"
+	HTTPRouteProtocol  RouteProtocol = "http1"
 	HTTP2RouteProtocol RouteProtocol = "http2"
 	TCPRouteProtocol   RouteProtocol = "tcp"
 )
