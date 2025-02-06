@@ -8,13 +8,13 @@ type Application struct {
 	// Env captures the `env` field values in the CF application manifest.
 	Env map[string]string `yaml:"env,omitempty"`
 	// Routes represent the routes that are made available by the application.
-	Route RouteSpec `yaml:"route,inline,omitempty"`
+	Route RouteSpec `yaml:"routes,inline,omitempty"`
 	// Services captures the `services` field values in the CF application manifest.
-	Services Services `yaml:"service,omitempty"`
+	Services Services `yaml:"services,omitempty"`
 	// Processes captures the `processes` field values in the CF application manifest.
-	Processes Processes `yaml:"process,omitempty"`
+	Processes Processes `yaml:"processes,omitempty"`
 	// Sidecars captures the `sidecars` field values in the CF application manifest.
-	Sidecars Sidecars `yaml:"sidecar,omitempty"`
+	Sidecars Sidecars `yaml:"sidecars,omitempty"`
 	// Stack represents the `stack` field in the application manifest.
 	// The value is captured for information purposes because it has no relevance
 	// in Kubernetes.
@@ -160,7 +160,7 @@ type Route struct {
 	Route string `yaml:"route" validate:"required"`
 	// Protocol captures the protocol type: http, http2 or tcp. Note that the CF `protocol` field is only available
 	// for CF deployments that use HTTP/2 routing.
-	Protocol RouteProtocol `yaml:"protocol" validate:"required,oneof=http http2 tcp"`
+	Protocol RouteProtocol `yaml:"protocol,omitempty" validate:"required,oneof=http http2 tcp"`
 	// Options captures the options for the Route. Only load balancing is supported at the moment.
 	Options RouteOptions `yaml:"options,omitempty"`
 }
