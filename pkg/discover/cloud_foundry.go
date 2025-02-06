@@ -48,7 +48,7 @@ func Discover(cfApp AppManifest, version, space string) (models.Application, err
 		Env:        cfApp.Env,
 		Stack:      cfApp.Stack,
 		Services:   services,
-		Route:      routeSpec,
+		Routes:     routeSpec,
 		Docker:     docker,
 		Sidecars:   sidecars,
 		Processes:  processes,

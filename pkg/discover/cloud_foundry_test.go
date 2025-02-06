@@ -582,7 +582,7 @@ var _ = Describe("Parse Application", func() {
 					Timeout:    100,
 					Instances:  5,
 					Env:        map[string]string{"foo": "bar"},
-					Route: models.RouteSpec{
+					Routes: models.RouteSpec{
 						RandomRoute: true,
 						Routes: models.Routes{
 							{
