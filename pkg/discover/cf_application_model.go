@@ -27,6 +27,7 @@ const (
 
 type Manifest struct {
 	Version      string         `yaml:"version,omitempty"`
+	Space        string         `yaml:"space,omitempty"`
 	Applications []*AppManifest `yaml:"applications"`
 }
 

@@ -1,5 +1,7 @@
 ---
 # From https://github.com/cloudfoundry-samples/cf-sample-app-spring/blob/master/manifest.yml
+version: 1
+space: default
 applications:
 - name: cf-demo
   memory: 768M
