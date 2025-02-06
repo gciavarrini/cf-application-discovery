@@ -37,7 +37,7 @@ func main() {
 
 	if len(cfApplications.Applications) > 0 {
 		for i, v := range cfApplications.Applications {
-			d, err := discover.Discover(*v, cfApplications.Version, "")
+			d, err := discover.Discover(*v, cfApplications.Version, cfApplications.Space)
 			if err != nil {
 				log.Fatal(err)
 			}
