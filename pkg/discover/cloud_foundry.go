@@ -20,7 +20,7 @@ func Discover(cfApp AppManifest, version, space string) (models.Application, err
 		instances = int(*cfApp.Instances)
 	}
 	services := parseServices(cfApp.Services)
-	routeSpec := parseRoute(cfApp.Routes, cfApp.RandomRoute, cfApp.NoRoute)
+	routeSpec := parseRouteSpec(cfApp.Routes, cfApp.RandomRoute, cfApp.NoRoute)
 	docker := parseDocker(cfApp.Docker)
 	sidecars := parseSidecars(cfApp.Sidecars)
 	processes, err := parseProcesses(cfApp)
@@ -40,6 +40,7 @@ func Discover(cfApp AppManifest, version, space string) (models.Application, err
 			Name:        cfApp.Name,
 			Labels:      labels,
 			Annotations: annotations,
+			Space:       space,
 		},
 		Timeout:    timeout,
 		Instances:  instances,
@@ -107,7 +108,7 @@ func parseReadinessHealthCheck(cfType AppHealthCheckType, cfEndpoint string, cfI
 func parseProcesses(cfApp AppManifest) (models.Processes, error) {
 	processes := models.Processes{}
 	if cfApp.Processes == nil {
-		return processes, nil
+		return nil, nil
 	}
 	for _, cfProcess := range *cfApp.Processes {
 		processes = append(processes, parseProcess(cfProcess))
@@ -154,7 +155,7 @@ func parseProcess(cfProcess AppManifestProcess) models.ProcessSpec {
 		DiskQuota:      cfProcess.DiskQuota,
 		Memory:         memory,
 		HealthCheck:    parseHealthCheck(cfProcess.HealthCheckType, cfProcess.HealthCheckHTTPEndpoint, cfProcess.HealthCheckInterval, cfProcess.HealthCheckInvocationTimeout),
-		ReadinessCheck: parseReadinessHealthCheck(cfProcess.HealthCheckType, cfProcess.HealthCheckHTTPEndpoint, cfProcess.HealthCheckInterval, cfProcess.HealthCheckInvocationTimeout),
+		ReadinessCheck: parseReadinessHealthCheck(cfProcess.ReadinessHealthCheckType, cfProcess.ReadinessHealthCheckHttpEndpoint, cfProcess.ReadinessHealthCheckInterval, cfProcess.ReadinessHealthInvocationTimeout),
 		Instances:      instances,
 		LogRateLimit:   logRateLimit,
 		Lifecycle:      models.LifecycleType(cfProcess.Lifecycle),
@@ -162,7 +163,7 @@ func parseProcess(cfProcess AppManifestProcess) models.ProcessSpec {
 	return p
 }
 
-func parseProcessTypes(cfProcessTypes []string) []models.ProcessType {
+func parseProcessTypes(cfProcessTypes []AppProcessType) []models.ProcessType {
 	types := []models.ProcessType{}
 	for _, cfType := range cfProcessTypes {
 		types = append(types, models.ProcessType(cfType))
@@ -173,7 +174,7 @@ func parseProcessTypes(cfProcessTypes []string) []models.ProcessType {
 func parseSidecars(cfSidecars *AppManifestSideCars) models.Sidecars {
 	sidecars := models.Sidecars{}
 	if cfSidecars == nil {
-		return sidecars
+		return nil
 	}
 	for _, cfSidecar := range *cfSidecars {
 		pt := parseProcessTypes(cfSidecar.ProcessTypes)
@@ -200,7 +201,7 @@ func parseDocker(cfDocker *AppManifestDocker) models.Docker {
 func parseServices(cfServices *AppManifestServices) models.Services {
 	services := models.Services{}
 	if cfServices == nil {
-		return services
+		return nil
 	}
 	for _, svc := range *cfServices {
 		s := models.ServiceSpec{
@@ -213,7 +214,7 @@ func parseServices(cfServices *AppManifestServices) models.Services {
 	return services
 }
 
-func parseRoute(cfRoutes *AppManifestRoutes, randomRoute, noRoute bool) models.RouteSpec {
+func parseRouteSpec(cfRoutes *AppManifestRoutes, randomRoute, noRoute bool) models.RouteSpec {
 	if noRoute {
 		return models.RouteSpec{
 			NoRoute: noRoute,
@@ -226,17 +227,27 @@ func parseRoute(cfRoutes *AppManifestRoutes, randomRoute, noRoute bool) models.R
 	if cfRoutes == nil {
 		return routeSpec
 	}
-	for _, cfRoute := range *cfRoutes {
+
+	routeSpec.Routes = parseRoutes(*cfRoutes)
+	return routeSpec
+}
+
+func parseRoutes(cfRoutes AppManifestRoutes) models.Routes {
+	if cfRoutes == nil {
+		return nil
+	}
+	routes := models.Routes{}
+	for _, cfRoute := range cfRoutes {
 		options := models.RouteOptions{}
 		if cfRoute.Options != nil {
-			options.LoadBalancing = cfRoute.Options.LoadBalancing
+			options.LoadBalancing = models.LoadBalancingType(cfRoute.Options.LoadBalancing)
 		}
 		r := models.Route{
 			Route:    cfRoute.Route,
 			Protocol: models.RouteProtocol(cfRoute.Protocol),
 			Options:  options,
 		}
-		routeSpec.Routes = append(routeSpec.Routes, r)
+		routes = append(routes, r)
 	}
-	return routeSpec
+	return routes
 }
