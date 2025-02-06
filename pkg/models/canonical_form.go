@@ -150,9 +150,12 @@ const (
 type Routes []Route
 
 type RouteSpec struct {
-	NoRoute     bool   `yaml:"noRoute,omitempty"`
-	RandomRoute bool   `yaml:"randomRoute,omitempty"`
-	Routes      Routes `yaml:"routes,omitempty"`
+	//NoRoute captures the field no-route in the CF Application manifest.
+	NoRoute bool `yaml:"noRoute,omitempty"`
+	//RandomRoute captures the field random-route in the CF Application manifest.
+	RandomRoute bool `yaml:"randomRoute,omitempty"`
+	//Routes captures the field routes in the CF Application manifest.
+	Routes Routes `yaml:"routes,omitempty"`
 }
 
 type Route struct {
