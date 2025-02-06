@@ -8,7 +8,7 @@ type Application struct {
 	// Env captures the `env` field values in the CF application manifest.
 	Env map[string]string `yaml:"env,omitempty"`
 	// Routes represent the routes that are made available by the application.
-	Route RouteSpec `yaml:"routes,inline,omitempty"`
+	Routes RouteSpec `yaml:"routes,inline,omitempty"`
 	// Services captures the `services` field values in the CF application manifest.
 	Services Services `yaml:"services,omitempty"`
 	// Processes captures the `processes` field values in the CF application manifest.
