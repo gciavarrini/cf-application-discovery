@@ -1,8 +1,9 @@
 package discover
 
 import (
-	"cf-application-discovery/pkg/models"
 	"encoding/json"
+
+	"github.com/gciavarrini/cf-application-discovery/pkg/models"
 )
 
 func Discover(cfApp AppManifest, version, space string) (models.Application, error) {

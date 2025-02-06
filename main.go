@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"cf-application-discovery/pkg/discover"
+	"github.com/gciavarrini/cf-application-discovery/pkg/discover"
 
 	"gopkg.in/yaml.v3"
 )

@@ -1,7 +1,7 @@
 package discover
 
 import (
-	"cf-application-discovery/pkg/models"
+	"github.com/gciavarrini/cf-application-discovery/pkg/models"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
