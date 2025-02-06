@@ -1,5 +1,7 @@
 package discover
 
+// Original source from https://github.com/cloudfoundry/go-cfclient/blob/main/operation/manifest.go
+
 type AppHealthCheckType string
 
 const (
@@ -35,7 +37,6 @@ type Metadata struct {
 }
 type AppManifest struct {
 	Name               string                `yaml:"name"`
-	Path               string                `yaml:"path,omitempty"`
 	Buildpacks         []string              `yaml:"buildpacks,omitempty"`
 	Docker             *AppManifestDocker    `yaml:"docker,omitempty"`
 	Env                map[string]string     `yaml:"env,omitempty"`
@@ -142,10 +143,10 @@ type AppRouteOptions struct {
 type AppManifestSideCars []AppManifestSideCar
 
 type AppManifestSideCar struct {
-	Name         string   `yaml:"name"`
-	ProcessTypes []string `yaml:"process_types,omitempty"`
-	Command      string   `yaml:"command,omitempty"`
-	Memory       string   `yaml:"memory,omitempty"`
+	Name         string           `yaml:"name"`
+	ProcessTypes []AppProcessType `yaml:"process_types,omitempty"`
+	Command      string           `yaml:"command,omitempty"`
+	Memory       string           `yaml:"memory,omitempty"`
 }
 
 func NewManifest(applications ...*AppManifest) *Manifest {
