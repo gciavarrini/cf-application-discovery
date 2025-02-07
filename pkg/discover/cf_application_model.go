@@ -150,22 +150,10 @@ type AppManifestSideCar struct {
 	Memory       string           `yaml:"memory,omitempty"`
 }
 
-func NewManifest(applications ...*AppManifest) *Manifest {
+func NewManifest(space string, applications ...*AppManifest) *Manifest {
 	return &Manifest{
 		Version:      "1",
+		Space:        space,
 		Applications: applications,
-	}
-}
-
-func NewAppManifest(appName string) *AppManifest {
-	var numOfInstances uint = 1
-	return &AppManifest{
-		Name: appName,
-		AppManifestProcess: AppManifestProcess{
-			HealthCheckType:         "port",
-			HealthCheckHTTPEndpoint: "/",
-			Instances:               &numOfInstances,
-			Memory:                  "256M",
-		},
 	}
 }
