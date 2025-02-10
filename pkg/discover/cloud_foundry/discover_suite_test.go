@@ -1,4 +1,4 @@
-package discover_test
+package cloud_foundry_test
 
 import (
 	"testing"

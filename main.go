@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/gciavarrini/cf-application-discovery/pkg/discover"
+	discover "github.com/gciavarrini/cf-application-discovery/pkg/discover/cloud_foundry"
 
 	"gopkg.in/yaml.v3"
 )
