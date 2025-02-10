@@ -1,8 +1,6 @@
-package discover
+package cloud_foundry
 
 import (
-	"github.com/gciavarrini/cf-application-discovery/pkg/models"
-
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -10,20 +8,20 @@ import (
 var _ = Describe("Health Checks tests", func() {
 
 	When("parsing health check probe", func() {
-		defaultProbeSpec := models.ProbeSpec{
-			Type:     models.PortProbeType,
+		defaultProbeSpec := ProbeSpec{
+			Type:     PortProbeType,
 			Endpoint: "/",
 			Timeout:  1,
 			Interval: 30,
 		}
-		overrideDefaultProbeSpec := func(overrides ...func(*models.ProbeSpec)) models.ProbeSpec {
+		overrideDefaultProbeSpec := func(overrides ...func(*ProbeSpec)) ProbeSpec {
 			spec := defaultProbeSpec
 			for _, override := range overrides {
 				override(&spec)
 			}
 			return spec
 		}
-		DescribeTable("validate the correctness of the parsing logic", func(app AppManifestProcess, expected models.ProbeSpec) {
+		DescribeTable("validate the correctness of the parsing logic", func(app AppManifestProcess, expected ProbeSpec) {
 			result := parseHealthCheck(app.HealthCheckType, app.HealthCheckHTTPEndpoint, app.HealthCheckInterval, app.HealthCheckInvocationTimeout)
 			// Use Gomega's Expect function for assertions
 			Expect(result).To(Equal(expected))
@@ -35,48 +33,48 @@ var _ = Describe("Health Checks tests", func() {
 				AppManifestProcess{
 					HealthCheckHTTPEndpoint: "/example.com",
 				},
-				overrideDefaultProbeSpec(func(spec *models.ProbeSpec) {
+				overrideDefaultProbeSpec(func(spec *ProbeSpec) {
 					spec.Endpoint = "/example.com"
 				})),
 			Entry("with interval only",
 				AppManifestProcess{
 					HealthCheckInterval: 42,
 				},
-				overrideDefaultProbeSpec(func(spec *models.ProbeSpec) {
+				overrideDefaultProbeSpec(func(spec *ProbeSpec) {
 					spec.Interval = 42
 				})),
 			Entry("with timeout only",
 				AppManifestProcess{
 					HealthCheckInvocationTimeout: 42,
 				},
-				overrideDefaultProbeSpec(func(spec *models.ProbeSpec) {
+				overrideDefaultProbeSpec(func(spec *ProbeSpec) {
 					spec.Timeout = 42
 				})),
 			Entry("with type only",
 				AppManifestProcess{
 					HealthCheckType: "http",
 				},
-				overrideDefaultProbeSpec(func(spec *models.ProbeSpec) {
-					spec.Type = models.HTTPProbeType
+				overrideDefaultProbeSpec(func(spec *ProbeSpec) {
+					spec.Type = HTTPProbeType
 				})),
 		)
 	})
 
 	When("parsing readiness health check probe", func() {
-		defaultProbeSpec := models.ProbeSpec{
-			Type:     models.ProcessProbeType,
+		defaultProbeSpec := ProbeSpec{
+			Type:     ProcessProbeType,
 			Endpoint: "/",
 			Timeout:  1,
 			Interval: 30,
 		}
-		overrideDefaultProbeSpec := func(overrides ...func(*models.ProbeSpec)) models.ProbeSpec {
+		overrideDefaultProbeSpec := func(overrides ...func(*ProbeSpec)) ProbeSpec {
 			spec := defaultProbeSpec
 			for _, override := range overrides {
 				override(&spec)
 			}
 			return spec
 		}
-		DescribeTable("validate the correctness of the parsing logic", func(app AppManifestProcess, expected models.ProbeSpec) {
+		DescribeTable("validate the correctness of the parsing logic", func(app AppManifestProcess, expected ProbeSpec) {
 			result := parseReadinessHealthCheck(app.ReadinessHealthCheckType, app.ReadinessHealthCheckHttpEndpoint, app.ReadinessHealthCheckInterval, app.ReadinessHealthInvocationTimeout)
 			// Use Gomega's Expect function for assertions
 			Expect(result).To(Equal(expected))
@@ -88,28 +86,28 @@ var _ = Describe("Health Checks tests", func() {
 				AppManifestProcess{
 					ReadinessHealthCheckType: Http,
 				},
-				overrideDefaultProbeSpec(func(spec *models.ProbeSpec) {
-					spec.Type = models.HTTPProbeType
+				overrideDefaultProbeSpec(func(spec *ProbeSpec) {
+					spec.Type = HTTPProbeType
 				})),
 			Entry("with endpoint only",
 				AppManifestProcess{
 					ReadinessHealthCheckHttpEndpoint: "/example.com",
 				},
-				overrideDefaultProbeSpec(func(spec *models.ProbeSpec) {
+				overrideDefaultProbeSpec(func(spec *ProbeSpec) {
 					spec.Endpoint = "/example.com"
 				})),
 			Entry("with interval only",
 				AppManifestProcess{
 					ReadinessHealthCheckInterval: 42,
 				},
-				overrideDefaultProbeSpec(func(spec *models.ProbeSpec) {
+				overrideDefaultProbeSpec(func(spec *ProbeSpec) {
 					spec.Interval = 42
 				})),
 			Entry("with timeout only",
 				AppManifestProcess{
 					ReadinessHealthInvocationTimeout: 42,
 				},
-				overrideDefaultProbeSpec(func(spec *models.ProbeSpec) {
+				overrideDefaultProbeSpec(func(spec *ProbeSpec) {
 					spec.Timeout = 42
 				})),
 		)
@@ -118,17 +116,17 @@ var _ = Describe("Health Checks tests", func() {
 var _ = Describe("Parse Process", func() {
 
 	When("parsing a process", func() {
-		defaultProcessSpec := models.ProcessSpec{
+		defaultProcessSpec := ProcessSpec{
 			Type:   "",
 			Memory: "1G",
-			HealthCheck: models.ProbeSpec{
-				Type:     models.PortProbeType,
+			HealthCheck: ProbeSpec{
+				Type:     PortProbeType,
 				Endpoint: "/",
 				Timeout:  1,
 				Interval: 30,
 			},
-			ReadinessCheck: models.ProbeSpec{
-				Type:     models.ProcessProbeType,
+			ReadinessCheck: ProbeSpec{
+				Type:     ProcessProbeType,
 				Endpoint: "/",
 				Timeout:  1,
 				Interval: 30,
@@ -136,7 +134,7 @@ var _ = Describe("Parse Process", func() {
 			Instances:    1,
 			LogRateLimit: "16K",
 		}
-		overrideDefaultProcessSpec := func(overrides ...func(*models.ProcessSpec)) models.ProcessSpec {
+		overrideDefaultProcessSpec := func(overrides ...func(*ProcessSpec)) ProcessSpec {
 			spec := defaultProcessSpec
 			for _, override := range overrides {
 				override(&spec)
@@ -144,7 +142,7 @@ var _ = Describe("Parse Process", func() {
 			return spec
 		}
 
-		DescribeTable("validate the correctness of the parsing logic", func(app AppManifestProcess, expected models.ProcessSpec) {
+		DescribeTable("validate the correctness of the parsing logic", func(app AppManifestProcess, expected ProcessSpec) {
 			result := parseProcess(app)
 			Expect(result).To(Equal(expected))
 		},
@@ -156,7 +154,7 @@ var _ = Describe("Parse Process", func() {
 				AppManifestProcess{
 					Memory: "512M",
 				},
-				overrideDefaultProcessSpec(func(spec *models.ProcessSpec) {
+				overrideDefaultProcessSpec(func(spec *ProcessSpec) {
 					spec.Memory = "512M"
 				}),
 			),
@@ -164,7 +162,7 @@ var _ = Describe("Parse Process", func() {
 				AppManifestProcess{
 					Instances: ptrTo(uint(42)),
 				},
-				overrideDefaultProcessSpec(func(spec *models.ProcessSpec) {
+				overrideDefaultProcessSpec(func(spec *ProcessSpec) {
 					spec.Instances = 42
 				}),
 			),
@@ -172,36 +170,36 @@ var _ = Describe("Parse Process", func() {
 				AppManifestProcess{
 					LogRateLimitPerSecond: "42K",
 				},
-				overrideDefaultProcessSpec(func(spec *models.ProcessSpec) {
+				overrideDefaultProcessSpec(func(spec *ProcessSpec) {
 					spec.LogRateLimit = "42K"
 				}),
 			),
 		)
 	})
 	When("parsing a process type", func() {
-		DescribeTable("validate the correctness of the parsing logic", func(cfProcessTypes []AppProcessType, expected []models.ProcessType) {
+		DescribeTable("validate the correctness of the parsing logic", func(cfProcessTypes []AppProcessType, expected []ProcessType) {
 			result := parseProcessTypes(cfProcessTypes)
 			Expect(result).To(Equal(expected))
 		},
 			Entry("default values with nil input",
 				nil,
-				[]models.ProcessType{},
+				[]ProcessType{},
 			),
 			Entry("default values with empty input",
 				[]AppProcessType{},
-				[]models.ProcessType{},
+				[]ProcessType{},
 			),
 			Entry("with web type",
-				[]AppProcessType{Web},
-				[]models.ProcessType{models.Web},
+				[]AppProcessType{WebAppProcessType},
+				[]ProcessType{Web},
 			),
 			Entry("with worker type",
-				[]AppProcessType{Worker},
-				[]models.ProcessType{models.Worker},
+				[]AppProcessType{WorkerAppProcessType},
+				[]ProcessType{Worker},
 			),
 			Entry("with multiple type",
 				[]AppProcessType{"web", "worker"},
-				[]models.ProcessType{models.Web, models.Worker},
+				[]ProcessType{Web, Worker},
 			),
 		)
 	})
@@ -210,7 +208,7 @@ var _ = Describe("Parse Process", func() {
 var _ = Describe("Parse Sidecars", func() {
 
 	When("parsing sidecars", func() {
-		DescribeTable("validate the correctness of the parsing logic", func(cfSidecars *AppManifestSideCars, expected models.Sidecars) {
+		DescribeTable("validate the correctness of the parsing logic", func(cfSidecars *AppManifestSideCars, expected Sidecars) {
 			result := parseSidecars(cfSidecars)
 			Expect(result).To(Equal(expected))
 		},
@@ -220,7 +218,7 @@ var _ = Describe("Parse Sidecars", func() {
 			),
 			Entry("default values with empty input",
 				&AppManifestSideCars{},
-				models.Sidecars{},
+				Sidecars{},
 			),
 			Entry("one sidecar with only name",
 				&AppManifestSideCars{
@@ -228,10 +226,10 @@ var _ = Describe("Parse Sidecars", func() {
 						Name: "test-name",
 					},
 				},
-				models.Sidecars{
+				Sidecars{
 					{
 						Name:         "test-name",
-						ProcessTypes: []models.ProcessType{},
+						ProcessTypes: []ProcessType{},
 					},
 				},
 			),
@@ -241,10 +239,10 @@ var _ = Describe("Parse Sidecars", func() {
 						Command: "test-command",
 					},
 				},
-				models.Sidecars{
+				Sidecars{
 					{
 						Command:      "test-command",
-						ProcessTypes: []models.ProcessType{},
+						ProcessTypes: []ProcessType{},
 					},
 				},
 			),
@@ -254,9 +252,9 @@ var _ = Describe("Parse Sidecars", func() {
 						ProcessTypes: []AppProcessType{"web", "worker"},
 					},
 				},
-				models.Sidecars{
+				Sidecars{
 					{
-						ProcessTypes: []models.ProcessType{models.Web, models.Worker},
+						ProcessTypes: []ProcessType{Web, Worker},
 					},
 				},
 			),
@@ -267,65 +265,65 @@ var _ = Describe("Parse Sidecars", func() {
 var _ = Describe("Parse Routes", func() {
 
 	When("parsing the route information", func() {
-		DescribeTable("validate the correctness of the parsing logic for the route specification", func(app AppManifest, expected models.RouteSpec) {
+		DescribeTable("validate the correctness of the parsing logic for the route specification", func(app AppManifest, expected RouteSpec) {
 			result := parseRouteSpec(app.Routes, app.RandomRoute, app.NoRoute)
 			Expect(result).To(Equal(expected))
 		},
-			Entry("when routes are nil, no-route and random-route are false", AppManifest{}, models.RouteSpec{}),
-			Entry("when routes are empty, no-route and random-route are false", AppManifest{Routes: &AppManifestRoutes{}}, models.RouteSpec{Routes: models.Routes{}}),
+			Entry("when routes are nil, no-route and random-route are false", AppManifest{}, RouteSpec{}),
+			Entry("when routes are empty, no-route and random-route are false", AppManifest{Routes: &AppManifestRoutes{}}, RouteSpec{Routes: Routes{}}),
 			Entry("when routes are not empty, no-route and random-route are false",
 				AppManifest{
 					Routes: &AppManifestRoutes{{Route: "foo.bar"}}},
-				models.RouteSpec{
-					Routes: models.Routes{{Route: "foo.bar"}},
+				RouteSpec{
+					Routes: Routes{{Route: "foo.bar"}},
 				}),
 			Entry("when routes are nil, no-route is true and random-route is false",
 				AppManifest{
 					NoRoute: true,
 				},
-				models.RouteSpec{
+				RouteSpec{
 					NoRoute: true,
 				}),
 			Entry("when routes have one entry and no-route is true",
 				AppManifest{
 					NoRoute: true,
 					Routes:  &AppManifestRoutes{{Route: "foo.bar"}}},
-				models.RouteSpec{
+				RouteSpec{
 					NoRoute: true,
 				}),
 			Entry("when routes are nil, no-route is false and random-route is true",
 				AppManifest{
 					RandomRoute: true,
 				},
-				models.RouteSpec{
+				RouteSpec{
 					RandomRoute: true,
 				}),
 			Entry("when routes have two entries, no-route and random-route are false",
 				AppManifest{
 					Routes: &AppManifestRoutes{{Route: "foo.bar"}, {Route: "bar.foo"}}},
-				models.RouteSpec{
-					Routes: models.Routes{{Route: "foo.bar"}, {Route: "bar.foo"}}},
+				RouteSpec{
+					Routes: Routes{{Route: "foo.bar"}, {Route: "bar.foo"}}},
 			),
 		)
 
-		DescribeTable("validate the correctness of the parsing logic of the route structure", func(routes AppManifestRoutes, expected models.Routes) {
+		DescribeTable("validate the correctness of the parsing logic of the route structure", func(routes AppManifestRoutes, expected Routes) {
 			result := parseRoutes(routes)
 			Expect(result).To(Equal(expected))
 		},
 			Entry("when routes are nil", nil, nil),
-			Entry("when routes are empty", AppManifestRoutes{}, models.Routes{}),
-			Entry("when routes contain one element with only route field defined", AppManifestRoutes{{Route: "foo.bar"}}, models.Routes{{Route: "foo.bar"}}),
-			Entry("when routes contain one element with only protocol field defined", AppManifestRoutes{{Protocol: HTTP2}}, models.Routes{{Protocol: models.HTTP2RouteProtocol}}),
+			Entry("when routes are empty", AppManifestRoutes{}, Routes{}),
+			Entry("when routes contain one element with only route field defined", AppManifestRoutes{{Route: "foo.bar"}}, Routes{{Route: "foo.bar"}}),
+			Entry("when routes contain one element with only protocol field defined", AppManifestRoutes{{Protocol: HTTP2}}, Routes{{Protocol: HTTP2RouteProtocol}}),
 			Entry("when routes contain one element with only options field defined with round-robin load balancing",
 				AppManifestRoutes{
 					{Options: &AppRouteOptions{LoadBalancing: "round-robin"}}},
-				models.Routes{
-					{Options: models.RouteOptions{LoadBalancing: models.RoundRobinLoadBalancingType}}}),
+				Routes{
+					{Options: RouteOptions{LoadBalancing: RoundRobinLoadBalancingType}}}),
 			Entry("when routes contain one element with only options field defined with least-connection load balancing",
 				AppManifestRoutes{
 					{Options: &AppRouteOptions{LoadBalancing: "least-connection"}}},
-				models.Routes{
-					{Options: models.RouteOptions{LoadBalancing: models.LeastConnectionLoadBalancingType}}}),
+				Routes{
+					{Options: RouteOptions{LoadBalancing: LeastConnectionLoadBalancingType}}}),
 			Entry("when routes contain one element with all fields populated",
 				AppManifestRoutes{
 					{
@@ -333,11 +331,11 @@ var _ = Describe("Parse Routes", func() {
 						Protocol: TCP,
 						Options:  &AppRouteOptions{LoadBalancing: "least-connection"},
 					}},
-				models.Routes{
+				Routes{
 					{
 						Route:    "foo.bar",
-						Protocol: models.TCPRouteProtocol,
-						Options:  models.RouteOptions{LoadBalancing: models.LeastConnectionLoadBalancingType}}}),
+						Protocol: TCPRouteProtocol,
+						Options:  RouteOptions{LoadBalancing: LeastConnectionLoadBalancingType}}}),
 			Entry("when routes contain two elements",
 				AppManifestRoutes{
 					{
@@ -349,14 +347,14 @@ var _ = Describe("Parse Routes", func() {
 						Route:    "bar.foo",
 						Protocol: HTTP1,
 					}},
-				models.Routes{
+				Routes{
 					{
 						Route:    "foo.bar",
-						Protocol: models.TCPRouteProtocol,
-						Options:  models.RouteOptions{LoadBalancing: models.RoundRobinLoadBalancingType}},
+						Protocol: TCPRouteProtocol,
+						Options:  RouteOptions{LoadBalancing: RoundRobinLoadBalancingType}},
 					{
 						Route:    "bar.foo",
-						Protocol: models.HTTPRouteProtocol,
+						Protocol: HTTPRouteProtocol,
 					}}),
 		)
 	})
@@ -365,21 +363,21 @@ var _ = Describe("Parse Routes", func() {
 
 var _ = Describe("parse Services", func() {
 	When("parsing the service information", func() {
-		DescribeTable("validate the correctness of the parsing logic", func(services AppManifestServices, expected models.Services) {
+		DescribeTable("validate the correctness of the parsing logic", func(services AppManifestServices, expected Services) {
 			result := parseServices(&services)
 			Expect(result).To(Equal(expected))
 		},
-			Entry("when services are nil", nil, models.Services{}),
-			Entry("when services are empty", AppManifestServices{}, models.Services{}),
-			Entry("when one service is provided with only name populated", AppManifestServices{{Name: "foo"}}, models.Services{{Name: "foo"}}),
+			Entry("when services are nil", nil, Services{}),
+			Entry("when services are empty", AppManifestServices{}, Services{}),
+			Entry("when one service is provided with only name populated", AppManifestServices{{Name: "foo"}}, Services{{Name: "foo"}}),
 			Entry("when one service is provided with parameters provided",
 				AppManifestServices{
 					{Parameters: map[string]interface{}{"foo": "bar"}},
 				},
-				models.Services{
+				Services{
 					{Parameters: map[string]interface{}{"foo": "bar"}},
 				}),
-			Entry("when one service is provided with binding name provided", AppManifestServices{{BindingName: "foo_service"}}, models.Services{{BindingName: "foo_service"}}),
+			Entry("when one service is provided with binding name provided", AppManifestServices{{BindingName: "foo_service"}}, Services{{BindingName: "foo_service"}}),
 			Entry("when one service is provided with name, parameters and binding name are provided",
 				AppManifestServices{
 					{
@@ -388,7 +386,7 @@ var _ = Describe("parse Services", func() {
 						BindingName: "foo_service",
 					},
 				},
-				models.Services{
+				Services{
 					{
 						Name:        "foo_name",
 						Parameters:  map[string]interface{}{"foo": "bar"},
@@ -400,7 +398,7 @@ var _ = Describe("parse Services", func() {
 					{Name: "foo"},
 					{Name: "bar"},
 				},
-				models.Services{
+				Services{
 					{Name: "foo"},
 					{Name: "bar"},
 				}),
@@ -410,25 +408,25 @@ var _ = Describe("parse Services", func() {
 
 var _ = Describe("parse metadata", func() {
 	When("parsing the metadata information", func() {
-		DescribeTable("validate the correctness of the parsing logic", func(metadata Metadata, version, space string, expected models.Metadata) {
+		DescribeTable("validate the correctness of the parsing logic", func(metadata AppMetadata, version, space string, expected Metadata) {
 			result, err := Discover(AppManifest{Metadata: &metadata}, version, space)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result.Metadata).To(Equal(expected))
 		},
 
-			Entry("when metadata is nil and version and space are empty", nil, "", "", models.Metadata{Version: "1"}),
-			Entry("when empty metadata, version and space", Metadata{}, "", "", models.Metadata{Version: "1"}),
-			Entry("when version is provided", Metadata{}, "2", "", models.Metadata{Version: "2"}),
-			Entry("when space is provided", Metadata{}, "", "default", models.Metadata{Version: "1", Space: "default"}),
-			Entry("when labels are provided", Metadata{Labels: map[string]*string{"foo": ptrTo("bar")}}, "", "", models.Metadata{Version: "1", Labels: map[string]*string{"foo": ptrTo("bar")}}),
-			Entry("when annotations are provided", Metadata{Annotations: map[string]*string{"bar": ptrTo("foo")}}, "", "", models.Metadata{Version: "1", Annotations: map[string]*string{"bar": ptrTo("foo")}}),
+			Entry("when metadata is nil and version and space are empty", nil, "", "", Metadata{Version: "1"}),
+			Entry("when empty metadata, version and space", AppMetadata{}, "", "", Metadata{Version: "1"}),
+			Entry("when version is provided", AppMetadata{}, "2", "", Metadata{Version: "2"}),
+			Entry("when space is provided", AppMetadata{}, "", "default", Metadata{Version: "1", Space: "default"}),
+			Entry("when labels are provided", AppMetadata{Labels: map[string]*string{"foo": ptrTo("bar")}}, "", "", Metadata{Version: "1", Labels: map[string]*string{"foo": ptrTo("bar")}}),
+			Entry("when annotations are provided", AppMetadata{Annotations: map[string]*string{"bar": ptrTo("foo")}}, "", "", Metadata{Version: "1", Annotations: map[string]*string{"bar": ptrTo("foo")}}),
 			Entry("when all fields are provided",
-				Metadata{
+				AppMetadata{
 					Labels:      map[string]*string{"foo": ptrTo("bar")},
 					Annotations: map[string]*string{"bar": ptrTo("foo")}},
 				"2",
 				"default",
-				models.Metadata{
+				Metadata{
 					Labels:      map[string]*string{"foo": ptrTo("bar")},
 					Annotations: map[string]*string{"bar": ptrTo("foo")},
 					Version:     "2",
@@ -440,7 +438,7 @@ var _ = Describe("parse metadata", func() {
 })
 var _ = Describe("Parse Application", func() {
 	When("parsing the application information", func() {
-		DescribeTable("validate the correctness of the parsing logic", func(app AppManifest, version, space string, expected models.Application) {
+		DescribeTable("validate the correctness of the parsing logic", func(app AppManifest, version, space string, expected Application) {
 			result, err := Discover(app, version, space)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result).To(Equal(expected))
@@ -449,8 +447,8 @@ var _ = Describe("Parse Application", func() {
 				AppManifest{},
 				"",
 				"",
-				models.Application{
-					Metadata:  models.Metadata{Version: "1"},
+				Application{
+					Metadata:  Metadata{Version: "1"},
 					Timeout:   60,
 					Instances: 1,
 				},
@@ -461,8 +459,8 @@ var _ = Describe("Parse Application", func() {
 				},
 				"",
 				"",
-				models.Application{
-					Metadata:  models.Metadata{Version: "1"},
+				Application{
+					Metadata:  Metadata{Version: "1"},
 					Timeout:   30,
 					Instances: 1,
 				},
@@ -473,8 +471,8 @@ var _ = Describe("Parse Application", func() {
 				},
 				"",
 				"",
-				models.Application{
-					Metadata:  models.Metadata{Version: "1"},
+				Application{
+					Metadata:  Metadata{Version: "1"},
 					Timeout:   60,
 					Instances: 2,
 				},
@@ -485,8 +483,8 @@ var _ = Describe("Parse Application", func() {
 				},
 				"",
 				"",
-				models.Application{
-					Metadata:   models.Metadata{Version: "1"},
+				Application{
+					Metadata:   Metadata{Version: "1"},
 					Timeout:    60,
 					Instances:  1,
 					BuildPacks: []string{"foo", "bar"},
@@ -498,8 +496,8 @@ var _ = Describe("Parse Application", func() {
 				},
 				"",
 				"",
-				models.Application{
-					Metadata:  models.Metadata{Version: "1"},
+				Application{
+					Metadata:  Metadata{Version: "1"},
 					Timeout:   60,
 					Instances: 1,
 					Env:       map[string]string{"foo": "bar"},
@@ -532,13 +530,13 @@ var _ = Describe("Parse Application", func() {
 					Sidecars: &AppManifestSideCars{
 						{
 							Name:         "foo_sidecar",
-							ProcessTypes: []AppProcessType{Web, Worker},
+							ProcessTypes: []AppProcessType{WebAppProcessType, WorkerAppProcessType},
 							Command:      "echo hello world",
 							Memory:       "2G",
 						},
 					},
 					Stack: "docker",
-					Metadata: &Metadata{
+					Metadata: &AppMetadata{
 						Labels:      map[string]*string{"foo": ptrTo("label")},
 						Annotations: map[string]*string{"bar": ptrTo("annotation")},
 					},
@@ -548,7 +546,7 @@ var _ = Describe("Parse Application", func() {
 					},
 					Processes: &AppManifestProcesses{
 						{
-							Type:                             Web,
+							Type:                             WebAppProcessType,
 							Command:                          "sleep 100",
 							DiskQuota:                        "100M",
 							HealthCheckType:                  Http,
@@ -569,8 +567,8 @@ var _ = Describe("Parse Application", func() {
 				},
 				"2",
 				"default",
-				models.Application{
-					Metadata: models.Metadata{
+				Application{
+					Metadata: Metadata{
 						Version:     "2",
 						Name:        "foo",
 						Labels:      map[string]*string{"foo": ptrTo("label")},
@@ -582,57 +580,57 @@ var _ = Describe("Parse Application", func() {
 					Timeout:    100,
 					Instances:  5,
 					Env:        map[string]string{"foo": "bar"},
-					Routes: models.RouteSpec{
+					Routes: RouteSpec{
 						RandomRoute: true,
-						Routes: models.Routes{
+						Routes: Routes{
 							{
 								Route:    "foo.bar.org",
-								Protocol: models.HTTP2RouteProtocol,
-								Options: models.RouteOptions{
-									LoadBalancing: models.LeastConnectionLoadBalancingType,
+								Protocol: HTTP2RouteProtocol,
+								Options: RouteOptions{
+									LoadBalancing: LeastConnectionLoadBalancingType,
 								},
 							},
 						},
 					},
-					Docker: models.Docker{
+					Docker: Docker{
 						Image:    "foo.bar:latest",
 						Username: "foo@bar.org",
 					},
-					Services: models.Services{
+					Services: Services{
 						{
 							Name:        "foo",
 							BindingName: "foo_service",
 							Parameters:  map[string]interface{}{"foo": "bar"},
 						},
 					},
-					Sidecars: models.Sidecars{
+					Sidecars: Sidecars{
 						{
 							Name:         "foo_sidecar",
-							ProcessTypes: []models.ProcessType{models.Web, models.Worker},
+							ProcessTypes: []ProcessType{Web, Worker},
 							Command:      "echo hello world",
 							Memory:       "2G",
 						},
 					},
-					Processes: models.Processes{
+					Processes: Processes{
 						{
-							Type:         models.Web,
+							Type:         Web,
 							Command:      "sleep 100",
 							DiskQuota:    "100M",
 							Instances:    2,
 							LogRateLimit: "30k",
 							Memory:       "2G",
 							Lifecycle:    "container",
-							HealthCheck: models.ProbeSpec{
+							HealthCheck: ProbeSpec{
 								Endpoint: "/health",
 								Timeout:  10,
 								Interval: 60,
-								Type:     models.HTTPProbeType,
+								Type:     HTTPProbeType,
 							},
-							ReadinessCheck: models.ProbeSpec{
+							ReadinessCheck: ProbeSpec{
 								Endpoint: "localhost:8443",
 								Timeout:  99,
 								Interval: 15,
-								Type:     models.PortProbeType,
+								Type:     PortProbeType,
 							},
 						},
 					},
@@ -644,19 +642,19 @@ var _ = Describe("Parse Application", func() {
 
 var _ = Describe("Parse docker", func() {
 	When("parsing the docker information", func() {
-		DescribeTable("validate the correctness of the parsing logic", func(docker AppManifestDocker, expected models.Docker) {
+		DescribeTable("validate the correctness of the parsing logic", func(docker AppManifestDocker, expected Docker) {
 			result := parseDocker(&docker)
 			Expect(result).To(Equal(expected))
 		},
-			Entry("when docker is nil", nil, models.Docker{}),
-			Entry("when docker is empty", AppManifestDocker{}, models.Docker{}),
-			Entry("when docker image is populated", AppManifestDocker{Image: "python3:latest"}, models.Docker{Image: "python3:latest"}),
-			Entry("when docker username is populated", AppManifestDocker{Username: "foo@bar.org"}, models.Docker{Username: "foo@bar.org"}),
+			Entry("when docker is nil", nil, Docker{}),
+			Entry("when docker is empty", AppManifestDocker{}, Docker{}),
+			Entry("when docker image is populated", AppManifestDocker{Image: "python3:latest"}, Docker{Image: "python3:latest"}),
+			Entry("when docker username is populated", AppManifestDocker{Username: "foo@bar.org"}, Docker{Username: "foo@bar.org"}),
 			Entry("when docker image and username are populated",
 				AppManifestDocker{
 					Image:    "python3:latest",
 					Username: "foo@bar.org"},
-				models.Docker{Image: "python3:latest",
+				Docker{Image: "python3:latest",
 					Username: "foo@bar.org"}),
 		)
 	})

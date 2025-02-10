@@ -1,4 +1,4 @@
-package discover
+package cloud_foundry
 
 // Original source from https://github.com/cloudfoundry/go-cfclient/blob/main/operation/manifest.go
 
@@ -13,8 +13,8 @@ const (
 type AppProcessType string
 
 const (
-	Web    AppProcessType = "web"
-	Worker AppProcessType = "worker"
+	WebAppProcessType    AppProcessType = "web"
+	WorkerAppProcessType AppProcessType = "worker"
 )
 
 type AppRouteProtocol string
@@ -32,7 +32,7 @@ type Manifest struct {
 }
 
 // Metadata allows you to tag API resources with information that does not directly affect its functionality.
-type Metadata struct {
+type AppMetadata struct {
 	Labels      map[string]*string `json:"labels"`
 	Annotations map[string]*string `json:"annotations"`
 }
@@ -48,7 +48,7 @@ type AppManifest struct {
 	Sidecars           *AppManifestSideCars  `yaml:"sidecars,omitempty"`
 	Processes          *AppManifestProcesses `yaml:"processes,omitempty"`
 	Stack              string                `yaml:"stack,omitempty"`
-	Metadata           *Metadata             `yaml:"metadata,omitempty"`
+	Metadata           *AppMetadata          `yaml:"metadata,omitempty"`
 	AppManifestProcess `yaml:",inline"`
 }
 
